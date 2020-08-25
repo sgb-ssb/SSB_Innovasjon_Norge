@@ -131,5 +131,3 @@ frex <- unlist(topicmodeloutput$frex) %>%
 topicmodeloutput <- as_tibble(list(Topic = topicmodeloutput$topicnums,
                                    Probability = prob$words ,
                                    FREX = frex$words))
-
-xlsx::write.xlsx(topicmodeloutput, file = "/ssb/bruker/sgb/Baerekraft med Innovasjon Norge/R-scripts/data/topicmodeloutput.xlsx")
