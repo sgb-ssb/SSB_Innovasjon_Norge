@@ -41,6 +41,8 @@ corpus_soknader <- corpus(soknader) # Lager et corpus av søknadene for videre p
 load("./soknader_g.rda")
 load("./soknader_stm.rda")
 
+# Tolkning av output fra topic modell tyder på at tema 7, 10, 11, 21, 33, 44, 61 og 80 gir uttrykk for ulike bærekraftstemaer knyttet til miljø.
+
 plot(soknader_stm, topics = c(7, 10, 11, 21, 33, 44, 61, 80), type = "summary", n = 10)
 
 soknad_tibble <- as_tibble(list(text = corpus_soknader$documents$texts,
@@ -162,9 +164,6 @@ soknader_ladninger_alle %>%
   mutate(barekraft = (V7 + V10 + V11 + V21 + V33 + V44 + V61 + V80)/sum*100) %>%
   pull(barekraft)
 
-xlsx::write.xlsx(sammendrag, file = "/ssb/bruker/sgb/Baerekraft med Innovasjon Norge/R-scripts/data/sammendrag.xlsx")
-xlsx::write.xlsx(sammendrag2, file = "/ssb/bruker/sgb/Baerekraft med Innovasjon Norge/R-scripts/data/sammendrag2.xlsx")
-
 
 #### KONTROLLVARIABLER ####
 
@@ -186,7 +185,7 @@ vof20191 <- vof2019 %>%
 
 ## REGNSKAP ##
 
-# Her finnre vi følgende variabler: næringskode, bedriftsstørrelse, bedriftsform, alder og lokasjon
+# Her finner vi følgende variabler: næringskode, bedriftsstørrelse, bedriftsform, alder og lokasjon
 
 regnskap_vof_20131 <- regnskap_vof_2013 %>%
   select(org_nr, NAVN, fnr_dat, nace1_sn07, syss, ORG_FORM, fylke, kommune, oms, aar) %>%
@@ -475,16 +474,6 @@ utfalldata %>%
         axis.line.x = element_line(color = "gray"),
         panel.grid.major = element_line(color = "lightgray"))
 
-178+4+ #deling
-  171+14+ # fornybar
-  171+11+ #materialer
-  173+9+ # plast
-  173+9+ # samf
-  179+3+ # tekstil
-  167+15 # vann
-
-4+14+11+9+9+3+15 # bærekraft
-
 
 # FYLKE
 
@@ -520,9 +509,6 @@ fylkedata %>%
         axis.line.x = element_line(color = "gray"),
         panel.grid.major = element_line(color = "lightgray"))
 
-16+37+36+30+24+19+30
-
-
 fylkesdata2 <- datafaktor %>% 
   mutate(barkraft = ifelse(c(fornybar == 1 | materialer == 1 | plast== 1| samf == 1 | tekstil == 1| vann == 1| 
                                deling == 1), "barekfraft", "ikkebar")) %>%
@@ -549,7 +535,6 @@ fylkesdata2 %>%
         axis.line.x = element_line(color = "gray"),
         panel.grid.major = element_line(color = "lightgray"))
 
-140+17
 
 fylkesdata2 %>%
   na.omit() %>%
@@ -576,10 +561,6 @@ fylkesdata2 %>%
         panel.grid.major = element_line(color = "lightgray"),
         axis.text.x = element_text(angle = 90))
 
-fylkesdata2 %>% filter(is.na(fylke2))
-
-550+15+529+37+530+36+536+30+542+24+547+19+536+30
-15+37+36+30+24+19+30
 
 # NACE
 
@@ -614,8 +595,6 @@ nacedata %>%
         panel.background = element_rect(fill = "white"),
         axis.line.x = element_line(color = "gray"),
         panel.grid.major = element_line(color = "lightgray"))
-
-16+38+37+31+25+20+32
 
 fagligvittjen <- datamatch2 %>%
   spread(tema, ladning) %>%
@@ -671,10 +650,6 @@ nacedata2 %>%
         panel.grid.major = element_line(color = "lightgray"),
         axis.text.x = element_text(angle = 90))
 
-nacedata2 %>% filter(is.na(nace2))
-
-581+16+559+38+560+37+566+31+572+25+577+20+565+32
-16+38+37+31+25+20+32
 
 # ORG_FORM
 
@@ -708,11 +683,6 @@ orgformdata %>%
        caption = "Utelukker 208 missingverdier der vi ikke vet organisasjonsform.") +
   scale_fill_brewer(palette = "Set2") +
   theme_light()
-
-16+28+36+30+24+19+25+30
-
-xlsx::write.xlsx(orgformdata, file = "/ssb/bruker/sgb/Baerekraft med Innovasjon Norge/R-scripts/orgformdata.xlsx")
-
 
 ##### MODELLER ####
 
@@ -780,7 +750,7 @@ datafaktor %>%
                                              "darkgreen", # Rensing av vann og luft
                                              "darkgray"))) # Samfunnsansvar og utvikling
 
-# Sett "Rensing av vann og luft", "Materialer", "Fornybar energi" og "Bil, utslipp og energi" i fet skrift.
+# Sett "Rensing av vann og luft", "Materialer", "Fornybar energi" og "Bil, utslipp og energi" i fet skrift. Disse variablene er signifikante.
 
 datafaktor %>%
   gather(fornybar, materialer, plast, samf, tekstil, vann, deling,
@@ -866,7 +836,6 @@ caret::confusionMatrix(datafaktor$predicted, datafaktor$utfall, positive = "Innv
 
 
 partialPlot(mod4, pred.data = as.data.frame(na.omit(datafaktor)), x.var = fornybar, which.class = "Innvilget")
-# Å ikke handle om fornybar energi gir større sjanse for å få søknad innvilget.
 partialPlot(mod4, pred.data = as.data.frame(na.omit(datafaktor)), x.var = materialer, which.class = "Innvilget")
 partialPlot(mod4, pred.data = as.data.frame(na.omit(datafaktor)), x.var = plast, which.class = "Innvilget")
 partialPlot(mod4, pred.data = as.data.frame(na.omit(datafaktor)), x.var = samf, which.class = "Innvilget")
